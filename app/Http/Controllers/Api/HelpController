@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\{AttachmentRequest};
+use App\Services\UploadFileService;
+use Illuminate\Http\Request;
+
+class HelpController extends Controller
+{
+    public function storeAttachment(AttachmentRequest $request)
+    {
+     dd('ddd');
+
+        $name = null;
+        try {
+            if ($request->file) {
+                if ($request->attachment_type == 'image') {
+                    $name = UploadFileService::uploadImg($request->file, $request->model);
+                }
+                elseif($request->attachment_type == 'file') {
+                    $name =  UploadFileService::uploadFile($request->file, $request->model);
+                }elseif($request->attachment_type == 'video'){
+                    $name =  UploadFileService::uploadVideo($request->file, $request->model);
+                }
+            }
+            // else{
+            //     foreach($request->files)
+            // }
+            return \response()->json([
+                'message' => 'uploaded successfully',
+                'status' => 'success',
+                'data' => $name,
+            ]);
+        } catch (\Exception $e) {
+            dd($e);
+            return response()->json(['status' => 'fail', 'data' => null, 'messages' => 'something went wrong please try again'], 422);
+        }
+    }
+}
